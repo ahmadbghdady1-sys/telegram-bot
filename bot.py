@@ -1,23 +1,26 @@
 import time
-import google.generativeai as genai
 import requests
 
 TELEGRAM_TOKEN = "8612660334:AAF8-atRkQiThq4I-9bHnkXkTex3BIo097s"
-
 GEMINI_API_KEY = "AIzaSyA8Hu3jUB8KyZnSjDF41v5FYLhx6vb2QGM"
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/"
 
-# إعداد مكتبة غوغل الرسمية
-genai.configure(api_key=GEMINI_API_KEY)
-
 
 def ask_gemini(prompt):
+  url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+  headers = {"Content-Type": "application/json"}
+  payload = {"contents": [{"parts": [{"text": prompt}]}]}
   try:
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    response = model.generate_content(prompt)
-    return response.text
+    response = requests.post(url, json=payload, headers=headers)
+    res_json = response.json()
+    if response.status_code == 200 and "candidates" in res_json:
+      return res_json["candidates"][0]["content"]["parts"][0]["text"]
+    elif "error" in res_json:
+      return f"⚠️ خطأ من Google: {res_json['error'].get('message', '')}"
+    else:
+      return f"⚠️ استجابة غير متوقعة: {res_json}"
   except Exception as e:
-    return f"⚠️ خطأ من Google: {str(e)}"
+    return f"⚠️ خطأ: {str(e)}"
 
 
 def get_updates(offset=None):
