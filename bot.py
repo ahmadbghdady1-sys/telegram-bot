@@ -4,7 +4,7 @@ import requests
 
 TELEGRAM_TOKEN = "8612660334:AAF8-atRkQiThq4I-9bHnkXkTex3BIo097s"
 
-GEMINI_API_KEY = "AQ.Ab8RN6Lr_I1OdHs0oriv2e52ikJmIAOP_f5onZm3IO1xyiuAGg"
+GEMINI_API_KEY = "AIzaSyA8Hu3jUB8KyZnSjDF41v5FYLhx6vb2QGM"
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/"
 
 # إعداد مكتبة غوغل الرسمية
