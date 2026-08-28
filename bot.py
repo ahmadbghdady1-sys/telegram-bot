@@ -3,7 +3,8 @@ import google.generativeai as genai
 import requests
 
 TELEGRAM_TOKEN = "8612660334:AAF8-atRkQiThq4I-9bHnkXkTex3BIo097s"
-GEMINI_API_KEY = "AQ.Ab8RN6Kty6IDc8_okZ8czDouLTSQkeEL82ZrDVdlGnC7c2v2sg"
+
+GEMINI_API_KEY = "AQ.Ab8RN6Lr_I1OdHs0oriv2e52ikJmIAOP_f5onZm3IO1xyiuAGg"
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/"
 
 # إعداد مكتبة غوغل الرسمية
@@ -12,7 +13,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 def ask_gemini(prompt):
   try:
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(prompt)
     return response.text
   except Exception as e:
