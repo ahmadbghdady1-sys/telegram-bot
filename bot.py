@@ -7,8 +7,11 @@ TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/"
 
 
 def ask_gemini(prompt):
-  url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-  headers = {"Content-Type": "application/json"}
+  url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent"
+  headers = {
+      "Content-Type": "application/json",
+      "Authorization": f"Bearer {GEMINI_API_KEY}",
+  }
   payload = {"contents": [{"parts": [{"text": prompt}]}]}
   try:
     response = requests.post(url, json=payload, headers=headers)
