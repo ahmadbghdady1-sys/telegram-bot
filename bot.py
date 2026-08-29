@@ -1,9 +1,13 @@
+import os
 import time
+import sys
 import requests
 
-# توكن البوت ومفتاح Groq
-TELEGRAM_TOKEN = "8612660334:AAF8-atRkQiThq4I-9bHnkXkTex3"
-GROQ_API_KEY = "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"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8612660334:AAF8-atRkQiThq4I-9bHnkXkTex3")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
+
+if GROQ_API_KEY and GROQ_API_KEY.startswith("Gsk_"):
+    GROQ_API_KEY = "gsk_" + GROQ_API_KEY[4:]
 
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
@@ -26,7 +30,7 @@ def ask_groq(prompt):
         if response.status_code == 200 and "choices" in res_json:
             return res_json["choices"][0]["message"]["content"]
         elif "error" in res_json:
-            return f"⚠️ خطأ: {res_json['error'].get('message', 'حدث خطأ غير معروف')}"
+            return f"⚠️ خطأ Groq: {res_json['error'].get('message', 'حدث خطأ غير معروف')}"
         else:
             return f"⚠️ استجابة غير متوقعة: {res_json}"
     except Exception as e:
@@ -38,11 +42,18 @@ def send_message(chat_id, text):
     try:
         requests.post(url, json=payload, timeout=10)
     except Exception as e:
-        print(f"Error sending message: {e}")
+        print(f"Error sending message: {e}", flush=True)
 
 def main():
+    print("Starting bot main loop...", flush=True)
+    try:
+        r = requests.get(TELEGRAM_URL + "/deleteWebhook")
+        print(f"Delete Webhook status: {r.text}", flush=True)
+    except Exception as e:
+        print(f"Delete webhook error: {e}", flush=True)
+
     offset = None
-    print("Bot is running with Groq AI...")
+    print("Bot is running and listening for messages...", flush=True)
     while True:
         try:
             url = TELEGRAM_URL + "/getUpdates?timeout=30"
@@ -58,12 +69,17 @@ def main():
                     text = message.get("text", "")
                     
                     if chat_id and text:
+                        print(f"Received message from {chat_id}: {text}", flush=True)
                         reply = ask_groq(text)
                         send_message(chat_id, reply)
+                        print(f"Sent reply to {chat_id}", flush=True)
+            else:
+                print(f"Telegram response not ok: {res}", flush=True)
+                time.sleep(3)
         except Exception as e:
-            print(f"Loop error: {e}")
+            print(f"Loop error: {e}", flush=True)
             time.sleep(3)
 
 if __name__ == "__main__":
     main()
-  
+    
