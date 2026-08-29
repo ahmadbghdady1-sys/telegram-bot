@@ -3,7 +3,8 @@ import time
 import sys
 import requests
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8612660334:AAF8-atRkQiThq4I-9bHnkXkTex3")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8850100988:AAG_dykth10VoIhdY4X7ehiVKA14_6HeKGU")
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
 
 if GROQ_API_KEY and GROQ_API_KEY.startswith("Gsk_"):
