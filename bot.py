@@ -19,7 +19,7 @@ def ask_groq(prompt):
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "gemma2-9b-it",
+        "model": "mixtral-8x7b-32768",
     
         "messages": [
             {"role": "system", "content": "أنت مساعد ذكي ومحترف، تجيب بدقة ووضوح باللغة العربية."},
