@@ -19,7 +19,7 @@ def ask_groq(prompt):
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "deepseek-r1-distill-llama-70b",
+        "model": "llama-3.2-3b-preview",
     
         "messages": [
             {"role": "system", "content": "أنت مساعد ذكي ومحترف، تجيب بدقة ووضوح باللغة العربية."},
