@@ -5,7 +5,7 @@ import requests
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8850100988:AAG_dykth10VoIhdY4X7ehiVKA14_6HeKGU").strip()
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
 
 if GROQ_API_KEY and GROQ_API_KEY.startswith("Gsk_"):
     GROQ_API_KEY = "gsk_" + GROQ_API_KEY[4:]
