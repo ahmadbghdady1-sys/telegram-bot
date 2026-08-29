@@ -1,63 +1,69 @@
 import time
 import requests
 
-TELEGRAM_TOKEN = "8612660334:AAF8-atRkQiThq4I-9bHnkXkTex3BIo097s"
-GEMINI_API_KEY = "AIzaSyA8Hu3jUB8KyZnSjDF41v5FYLhx6vb2QGM"
-TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/"
+# توكن البوت ومفتاح Groq
+TELEGRAM_TOKEN = "8612660334:AAF8-atRkQiThq4I-9bHnkXkTex3"
+GROQ_API_KEY = "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"
 
+TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
-def ask_gemini(prompt):
-  url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-  headers = {"Content-Type": "application/json"}
-  payload = {"contents": [{"parts": [{"text": prompt}]}]}
-  try:
-    response = requests.post(url, json=payload, headers=headers)
-    res_json = response.json()
-    if response.status_code == 200 and "candidates" in res_json:
-      return res_json["candidates"][0]["content"]["parts"][0]["text"]
-    elif "error" in res_json:
-      return f"⚠️ خطأ من Google: {res_json['error'].get('message', '')}"
-    else:
-      return f"⚠️ استجابة غير متوقعة: {res_json}"
-  except Exception as e:
-    return f"⚠️ خطأ: {str(e)}"
+def ask_groq(prompt):
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama-3.1-8b-instant",
+        "messages": [
+            {"role": "system", "content": "أنت مساعد ذكي ومحترف، تجيب بدقة ووضوح باللغة العربية."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=20)
+        res_json = response.json()
+        if response.status_code == 200 and "choices" in res_json:
+            return res_json["choices"][0]["message"]["content"]
+        elif "error" in res_json:
+            return f"⚠️ خطأ: {res_json['error'].get('message', 'حدث خطأ غير معروف')}"
+        else:
+            return f"⚠️ استجابة غير متوقعة: {res_json}"
+    except Exception as e:
+        return f"⚠️ خطأ في الاتصال: {str(e)}"
 
+def send_message(chat_id, text):
+    url = TELEGRAM_URL + "/sendMessage"
+    payload = {"chat_id": chat_id, "text": text}
+    try:
+        requests.post(url, json=payload, timeout=10)
+    except Exception as e:
+        print(f"Error sending message: {e}")
 
-def get_updates(offset=None):
-  url = TELEGRAM_URL + "getUpdates?timeout=30"
-  if offset:
-    url += f"&offset={offset}"
-  try:
-    return requests.get(url).json()
-  except:
-    return {}
+def main():
+    offset = None
+    print("Bot is running with Groq AI...")
+    while True:
+        try:
+            url = TELEGRAM_URL + "/getUpdates?timeout=30"
+            if offset:
+                url += f"&offset={offset}"
+            
+            res = requests.get(url, timeout=35).json()
+            if res.get("ok"):
+                for result in res.get("result", []):
+                    offset = result["update_id"] + 1
+                    message = result.get("message", {})
+                    chat_id = message.get("chat", {}).get("id")
+                    text = message.get("text", "")
+                    
+                    if chat_id and text:
+                        reply = ask_groq(text)
+                        send_message(chat_id, reply)
+        except Exception as e:
+            print(f"Loop error: {e}")
+            time.sleep(3)
 
-
-def send_message(text, chat_id):
-  requests.post(
-      TELEGRAM_URL + "sendMessage", json={"chat_id": chat_id, "text": text}
-  )
-
-
-print("Bot is starting on Render...")
-last_update_id = None
-while True:
-  updates = get_updates(last_update_id)
-  if "result" in updates and updates["result"]:
-    for update in updates["result"]:
-      last_update_id = update["update_id"] + 1
-      message = update.get("message", {})
-      chat_id = message.get("chat", {}).get("id")
-      text = message.get("text", "")
-
-      if text == "/start":
-        reply = "أهلاً بك! يعمل البوت الآن بنجاح على سيرفر دائم."
-      elif text:
-        reply = ask_gemini(text)
-      else:
-        reply = "يرجى إرسال نص."
-
-      if chat_id:
-        send_message(reply, chat_id)
-  time.sleep(1)
+if __name__ == "__main__":
+    main()
   
